@@ -34,14 +34,15 @@ const database = {
         }
     ]
 }
+// root route: just gets users
 app.get('/', (req,res) => {
     // res.send('this is working');
     res.send(database.users);
 })
 
+// signin route: compares user input to string stored in database (hashed for security purposes)
 app.post('/signin', (req,res) => {
-    bcrypt.compare("bacon", hash, function(err, res) {
-        
+    bcrypt.compare("apples", hash, function(err, res) {
     })
 if (req.body.email === database.users[0].email && 
     req.body.password === database.users[0].password) {
@@ -53,11 +54,11 @@ else
 }
 })
 
+// register route: creates new user in database (hashed for security)
 app.post('/register', (req,res) => {
     const { email, name, password } = req.body;
     bcrypt.hash(password, null, null, function(err, hash) {
         // store hash in password db
-        console.log(hash);
     });
     database.users.push({
         id: '125',
@@ -90,25 +91,23 @@ app.get('/profile/:id', (req,res) => {
     }
 })
 
-bcrypt.hash("bacon", null, null, function(err, hash) {
-    // Store hash in your password DB.
-});
-
 // Load hash from your password DB.
-bcrypt.hash("bacon", null, null, function(err, hash) {
-    bcrypt.compare("bacon", hash, function(err, res) {
-        console.log(hash);
+
+// Situation 1: correct password
+bcrypt.hash("apples", null, null, function(err, hash) {
+    bcrypt.compare("apples", hash, function(err, res) {
+        console.log('correct password hash: ', hash);
         // res == true
     });
 });
-bcrypt.hash("veggies", null, null, function(err, hash) {
-    bcrypt.compare("veggies", hash, function(err, res) {
-        console.log(hash);
+// Situation 2: incorrect password
+bcrypt.hash("oranges", null, null, function(err, hash) {
+    bcrypt.compare("oranges", hash, function(err, res) {
+        console.log('incorrect password hash: ', hash);
         // res = false
     });
 });
 // express has built-in json() functions
-
 app.post('/image', (req,res) => {
     const { id } = req.body;
     let found = false;
@@ -132,6 +131,7 @@ app.listen(3001, ()=> {
 })
 
 /*
+// ROADMAP
 /res --> this is working
 /signin --> POST: success/fail
 /register --> POST: user
