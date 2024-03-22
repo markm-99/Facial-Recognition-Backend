@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt-nodejs');
 const app = express();
 // use bodyparser to call app
 app.use(bodyParser.json());
@@ -24,6 +25,13 @@ const database = {
             entries: 0,
             joined: new Date()
         }
+    ],
+    login: [
+        {
+            id: '987',
+            hash: '',
+            email: 'john@gmail.com',
+        }
     ]
 }
 app.get('/', (req,res) => {
@@ -32,6 +40,9 @@ app.get('/', (req,res) => {
 })
 
 app.post('/signin', (req,res) => {
+    bcrypt.compare("bacon", hash, function(err, res) {
+        
+    })
 if (req.body.email === database.users[0].email && 
     req.body.password === database.users[0].password) {
     res.json('success');
@@ -40,10 +51,14 @@ else
 {
     res.status(400).json('error logging in');
 }
-});
+})
 
 app.post('/register', (req,res) => {
     const { email, name, password } = req.body;
+    bcrypt.hash(password, null, null, function(err, hash) {
+        // store hash in password db
+        console.log(hash);
+    });
     database.users.push({
         id: '125',
         name: name,
@@ -65,14 +80,33 @@ app.get('/profile/:id', (req,res) => {
         if (user.id === id)
         {
             found = true
+            user.entries++;
             return res.json(user);
         }
     })
     if (!found)
     {
-        res.status(404).json('no such user');
+        res.status(400).json('no such user');
     }
 })
+
+bcrypt.hash("bacon", null, null, function(err, hash) {
+    // Store hash in your password DB.
+});
+
+// Load hash from your password DB.
+bcrypt.hash("bacon", null, null, function(err, hash) {
+    bcrypt.compare("bacon", hash, function(err, res) {
+        console.log(hash);
+        // res == true
+    });
+});
+bcrypt.hash("veggies", null, null, function(err, hash) {
+    bcrypt.compare("veggies", hash, function(err, res) {
+        console.log(hash);
+        // res = false
+    });
+});
 // express has built-in json() functions
 
 app.post('/image', (req,res) => {
@@ -93,9 +127,8 @@ app.post('/image', (req,res) => {
         res.status(404).json('no such user');
     }
 })
-
-app.listen(3000, ()=> {
-    console.log('listening on port 3000');
+app.listen(3001, ()=> {
+    console.log('listening on port 3001');
 })
 
 /*
