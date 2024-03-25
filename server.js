@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors'); //cross origin resource sharing (secure communication between server and client)
 const app = express();
 // use bodyparser to call app
+app.use(cors());
 app.use(bodyParser.json());
 
 const database = {
@@ -11,6 +13,7 @@ const database = {
             id: '123',
             name: 'John',
             email: 'john@gmail.com',
+            // store passwords in hashes for security reasons
             password: 'cookies',
             // track number of times john submits photo requests
             entries: 0,
@@ -41,25 +44,28 @@ app.get('/', (req,res) => {
 })
 
 // signin route: compares user input to string stored in database (hashed for security purposes)
+// server checks if user exists, then gives a response
 app.post('/signin', (req,res) => {
-    bcrypt.compare("apples", hash, function(err, res) {
-    })
-if (req.body.email === database.users[0].email && 
-    req.body.password === database.users[0].password) {
-    res.json('success');
-}
-else
-{
-    res.status(400).json('error logging in');
-}
+    bcrypt.compare("apples", '$2a$10$SUqTV.TckJKPrblX/a1jOOnSfOLyBW./BTJz7w3CJaFpvqOsIb46S', function(err, res) {
+        console.log('first guess', res)
+    });
+    bcrypt.compare("veggies", '$2a$10$SUqTV.TckJKPrblX/a1jOOnSfOLyBW./BTJz7w3CJaFpvqOsIb46S', function(err, res) {
+        console.log('second guess', res)
+    });
+
+    if (req.body.email === database.users[0].email && 
+        req.body.password === database.users[0].password) {
+        res.json('success');
+    }
+    else
+    {
+        res.status(400).json('error logging in');
+    }
 })
 
 // register route: creates new user in database (hashed for security)
 app.post('/register', (req,res) => {
     const { email, name, password } = req.body;
-    bcrypt.hash(password, null, null, function(err, hash) {
-        // store hash in password db
-    });
     database.users.push({
         id: '125',
         name: name,
@@ -67,9 +73,8 @@ app.post('/register', (req,res) => {
         password: password,
         // everytime user submits image, increase entries count
         entries: 0,
-        joined: new Date()
+        joined: new Date()      
     })
-
     // always make sure to respond with express or it won't render
     res.json(database.users[database.users.length-1]);
 })
@@ -91,22 +96,6 @@ app.get('/profile/:id', (req,res) => {
     }
 })
 
-// Load hash from your password DB.
-
-// Situation 1: correct password
-bcrypt.hash("apples", null, null, function(err, hash) {
-    bcrypt.compare("apples", hash, function(err, res) {
-        console.log('correct password hash: ', hash);
-        // res == true
-    });
-});
-// Situation 2: incorrect password
-bcrypt.hash("oranges", null, null, function(err, hash) {
-    bcrypt.compare("oranges", hash, function(err, res) {
-        console.log('incorrect password hash: ', hash);
-        // res = false
-    });
-});
 // express has built-in json() functions
 app.post('/image', (req,res) => {
     const { id } = req.body;
@@ -120,12 +109,22 @@ app.post('/image', (req,res) => {
             return res.json(user.entries);
         }
     })
-    // if user NOT found, print 404 error
+// if user NOT found, print 404 error
     if (!found)
     {
         res.status(404).json('no such user');
     }
 })
+
+// bcrypt.hash("bacon", null, null, function(err, hash) {
+// // store hash in your password db
+// });
+
+// // load hash from password DB
+// bcrypt.compare("veggies", hash, function(err, res) {
+
+// });
+
 app.listen(3001, ()=> {
     console.log('listening on port 3001');
 })
