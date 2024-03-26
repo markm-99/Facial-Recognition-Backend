@@ -70,7 +70,6 @@ app.post('/register', (req,res) => {
         id: '125',
         name: name,
         email: email,
-        password: password,
         // everytime user submits image, increase entries count
         entries: 0,
         joined: new Date()      
@@ -115,7 +114,6 @@ app.post('/image', (req,res) => {
         res.status(404).json('no such user');
     }
 })
-
 // bcrypt.hash("bacon", null, null, function(err, hash) {
 // // store hash in your password db
 // });
@@ -128,7 +126,6 @@ app.post('/image', (req,res) => {
 app.listen(3001, ()=> {
     console.log('listening on port 3001');
 })
-
 /*
 // ROADMAP
 /res --> this is working
